@@ -63,10 +63,22 @@ public class MustacheTemplateEngine: TemplateEngine {
     public var fileExtension: String { return "mustache" }
 
     /// The paths to search for template files
-    public var rootPaths: [String] = []
+    public var rootPaths: [String] = [] {
+        didSet {
+            if let path = rootPaths.first {
+                self.templateRepository = TemplateRepository(directoryPath: path)
+            }
+        }
+    }
+
+    private var templateRepository: TemplateRepository?
     
     /// Initializes a KituraMustache template engine.
     public init() {}
+
+    public func setRootPaths(paths: [String]) {
+        self.rootPaths = paths
+    }
     
     public func render<T: Encodable>(filePath: String, with value: T, forKey key: String?,
                                    options: RenderingOptions, templateName: String) throws -> String {
@@ -100,7 +112,11 @@ public class MustacheTemplateEngine: TemplateEngine {
     public func render(filePath: String, context: [String: Any]) throws -> String {
         let template: Template
         do {
-            template = try Template(path: filePath)
+            if let repo = self.templateRepository {
+                template = try repo.template(named: filePath)
+            } else {
+                template = try Template(path: filePath)
+            }
         } catch {
             throw MustacheTemplateEngineError.unableToInitializeTemplateWithFilePath(path: filePath)
         }
