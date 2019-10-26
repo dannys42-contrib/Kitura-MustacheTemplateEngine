@@ -61,6 +61,9 @@ public class MustacheTemplateEngine: TemplateEngine {
 
     /// The file extension of files rendered by the KituraMustache template engine: `mustache`
     public var fileExtension: String { return "mustache" }
+
+    /// The paths to search for template files
+    public var rootPaths: [String] = []
     
     /// Initializes a KituraMustache template engine.
     public init() {}
@@ -102,7 +105,7 @@ public class MustacheTemplateEngine: TemplateEngine {
             throw MustacheTemplateEngineError.unableToInitializeTemplateWithFilePath(path: filePath)
         }
         do {
-            return try template.render(with: Box(context))
+            return try template.render(Box(context))
         } catch {
             throw MustacheTemplateEngineError.unableToRenderContext(context: context)
         }
