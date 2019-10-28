@@ -67,6 +67,8 @@ public class MustacheTemplateEngine: TemplateEngine {
         didSet {
             if let path = rootPaths.first {
                 self.templateRepository = TemplateRepository(directoryPath: path)
+            } else {
+                self.templateRepository = nil
             }
         }
     }
