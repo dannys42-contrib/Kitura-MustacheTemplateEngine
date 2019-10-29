@@ -106,21 +106,43 @@ public class MustacheTemplateEngine: TemplateEngine {
         } else {
             context = json
         }
-        
-        return try render(filePath: filePath, context: context)
-        
+
+        let templateFile: String
+        if self.templateRepository == nil {
+            templateFile = filePath
+        } else {
+            templateFile = templateName
+        }
+        return try render(filePath: templateFile, context: context)
     }
-    
+
+    public func render(filePath: String, context: [String: Any],
+                       options: RenderingOptions, templateName: String) throws -> String {
+        return try render(filePath: templateName, context: context, options: options)
+    }
+
     public func render(filePath: String, context: [String: Any]) throws -> String {
         let template: Template
+        let templateName: String
+
         do {
             if let repo = self.templateRepository {
-                template = try repo.template(named: filePath)
+                // Remove extension if using repository as it automatically adds it
+                let fileExt = "." + self.fileExtension
+                if filePath.hasSuffix(fileExt) {
+                    let suffixIndex = filePath.index(filePath.endIndex, offsetBy: -fileExt.count)
+                    templateName = String(filePath[..<suffixIndex])
+                } else {
+                    templateName = filePath
+                }
+
+                template = try repo.template(named: templateName)
             } else {
-                template = try Template(path: filePath)
+                templateName = filePath
+                template = try Template(path: templateName)
             }
         } catch {
-            throw MustacheTemplateEngineError.unableToInitializeTemplateWithFilePath(path: filePath)
+            throw MustacheTemplateEngineError.unableToInitializeTemplateWithFilePath(path: templateName)
         }
         do {
             return try template.render(Box(context))
