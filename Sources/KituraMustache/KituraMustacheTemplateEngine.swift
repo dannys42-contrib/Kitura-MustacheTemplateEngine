@@ -81,6 +81,10 @@ public class MustacheTemplateEngine: TemplateEngine {
     public func setRootPaths(paths: [String]) {
         self.rootPaths = paths
     }
+
+    public func reloadTemplates() {
+        self.templateRepository?.reloadTemplates()
+    }
     
     public func render<T: Encodable>(filePath: String, with value: T, forKey key: String?,
                                    options: RenderingOptions, templateName: String) throws -> String {
